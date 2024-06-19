@@ -30,10 +30,10 @@ public class CreateTaskPage extends JFrame {
     setResizable(false);
     setLocationRelativeTo(null);
 
-    JLabel heading = new JLabel("Task Manager", JLabel.CENTER);
+    JLabel heading = new JLabel("Create A New Task", JLabel.CENTER);
     heading.setFont(new Font("Poppins", Font.BOLD, 27));
     heading.setForeground(Color.decode(ThemeConstant.THEME_BG_COLOR));
-    heading.setBounds(160, 25, 190, 33);
+    heading.setBounds(125, 25, 250, 33);
 
     JTextField taskHeading = new JTextField();
     taskHeading.setBounds(54, 70, 392, 40);
