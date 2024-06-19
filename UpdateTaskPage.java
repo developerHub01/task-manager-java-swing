@@ -16,31 +16,34 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-public class CreateTaskPage extends JFrame {
+public class UpdateTaskPage extends JFrame {
   Container containerBox;
-
   String taskHeadingValue = "";
   String taskDescriptionValue = "";
 
-  CreateTaskPage() {
+  UpdateTaskPage(String taskId) {
+    String[] taskData = HandleDataFile.readByIdFromCSVFile(taskId);
+
     this.getContentPane().setLayout(null);
-    setTitle("Create Task");
+    setTitle("Update Task");
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     setSize(500, 500);
     setResizable(false);
     setLocationRelativeTo(null);
 
-    JLabel heading = new JLabel("Task Manager", JLabel.CENTER);
+    JLabel heading = new JLabel("Update Task", JLabel.CENTER);
     heading.setFont(new Font("Poppins", Font.BOLD, 27));
     heading.setForeground(Color.decode(ThemeConstant.THEME_BG_COLOR));
     heading.setBounds(160, 25, 190, 33);
 
     JTextField taskHeading = new JTextField();
+    taskHeading.setText(taskData[0]);
     taskHeading.setBounds(54, 70, 392, 40);
     taskHeading.setBorder(new LineBorder(Color.decode(ThemeConstant.THEME_BG_COLOR), 3));
     taskHeading.setFont(new Font("Poppins", Font.PLAIN, 15));
 
     JTextArea taskDescription = new JTextArea();
+    taskDescription.setText(taskData[1]);
     taskDescription.setFont(new Font("Poppins", Font.PLAIN, 15));
     taskDescription.setLineWrap(true);
     taskDescription.setWrapStyleWord(true);
@@ -52,13 +55,13 @@ public class CreateTaskPage extends JFrame {
     taskDescriptionWrapper.setBounds(54, 125, 392, 250);
     taskDescriptionWrapper.setBorder(new LineBorder(Color.decode(ThemeConstant.THEME_BG_COLOR), 3));
 
-    JButton saveButton = new JButton("Save");
-    saveButton.setBounds(54, 390, 185, 40);
-    saveButton.setBackground(Color.decode(ThemeConstant.THEME_DISABLED_COLOR));
-    saveButton.setForeground(Color.decode(ThemeConstant.THEME_FG_COLOR));
-    saveButton.setFont(new Font("Poppins", Font.BOLD, 16));
-    saveButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    saveButton.setEnabled(false);
+    JButton updateButton = new JButton("Save");
+    updateButton.setBounds(54, 390, 185, 40);
+    updateButton.setBackground(Color.decode(ThemeConstant.THEME_DISABLED_COLOR));
+    updateButton.setForeground(Color.decode(ThemeConstant.THEME_FG_COLOR));
+    updateButton.setFont(new Font("Poppins", Font.BOLD, 16));
+    updateButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    updateButton.setEnabled(false);
 
     JButton cancelButton = new JButton("Discard");
     cancelButton.setBounds(261, 390, 185, 40);
@@ -67,6 +70,31 @@ public class CreateTaskPage extends JFrame {
     cancelButton.setFont(new Font("Poppins", Font.BOLD, 16));
     cancelButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+    taskHeading.addKeyListener(new KeyAdapter() {
+      public void keyPressed(KeyEvent e) {
+        Boolean isEnabledSaveButton = !taskHeading.getText().isEmpty() && !taskDescription.getText().isEmpty();
+        updateButton.setEnabled(isEnabledSaveButton);
+        updateButton.setBackground(
+            Color.decode(isEnabledSaveButton ? ThemeConstant.THEME_BG_COLOR : ThemeConstant.THEME_DISABLED_COLOR));
+      }
+    });
+    taskDescription.addKeyListener(new KeyAdapter() {
+      public void keyPressed(KeyEvent e) {
+        Boolean isEnabledSaveButton = !taskHeading.getText().isEmpty() && !taskDescription.getText().isEmpty();
+        updateButton.setEnabled(isEnabledSaveButton);
+        updateButton.setBackground(
+            Color.decode(isEnabledSaveButton ? ThemeConstant.THEME_BG_COLOR : ThemeConstant.THEME_DISABLED_COLOR));
+      }
+    });
+
+    updateButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        HandleDataFile.updateTaskByIdInCSVFile(taskId, taskHeading.getText(), taskDescription.getText());
+        dispose();
+        new PreviewTaskPage(taskId);
+      }
+    });
+
     cancelButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         dispose();
@@ -74,35 +102,10 @@ public class CreateTaskPage extends JFrame {
       }
     });
 
-    taskHeading.addKeyListener(new KeyAdapter() {
-      public void keyPressed(KeyEvent e) {
-        Boolean isEnabledSaveButton = !taskHeading.getText().isEmpty() && !taskDescription.getText().isEmpty();
-        saveButton.setEnabled(isEnabledSaveButton);
-        saveButton.setBackground(
-            Color.decode(isEnabledSaveButton ? ThemeConstant.THEME_BG_COLOR : ThemeConstant.THEME_DISABLED_COLOR));
-      }
-    });
-    taskDescription.addKeyListener(new KeyAdapter() {
-      public void keyPressed(KeyEvent e) {
-        Boolean isEnabledSaveButton = !taskHeading.getText().isEmpty() && !taskDescription.getText().isEmpty();
-        saveButton.setEnabled(isEnabledSaveButton);
-        saveButton.setBackground(
-            Color.decode(isEnabledSaveButton ? ThemeConstant.THEME_BG_COLOR : ThemeConstant.THEME_DISABLED_COLOR));
-      }
-    });
-
-    saveButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        HandleDataFile.saveToCSVFile(taskHeading.getText(), taskDescription.getText());
-        new AllTaskPage();
-        dispose();
-      }
-    });
-
     add(heading);
     add(taskHeading);
     add(taskDescriptionWrapper, BorderLayout.CENTER);
-    add(saveButton);
+    add(updateButton);
     add(cancelButton);
 
     setVisible(true);
